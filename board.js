@@ -43,31 +43,32 @@ bg.Board = function(rows, cols, game) {
     this.appendChild(this.charLayer);
 
     // load in player
-    this.addCharactor(1, 1);
-
-    // start moving but give time to load
-    // lime.scheduleManager.callAfter(this.moveCharactor, this, 700);
+    this.addCharactor(2, 2);
 
     // register listener
-    // goog.events.listen(this, ['mousedown', 'touchstart'], this.pressHandler_);
+    goog.events.listen(this, ['mousedown', 'touchstart'], this.pressHandler_);
 
 };
 goog.inherits(bg.Board, lime.Sprite);
 
-bg.Board.prototype.addCharactor = function(row, col) {
-    var charactor = bg.Charactor();
-    charactor.r = row;
-    charactor.c = col;
-    charactor.setPosition(row, col);
-    charactor.setSize(this.GAP, this.GAP);
-    this.charLayer.appendChild(charactor);
+/**
+ * Add a new charactor sprite to the board
+ * @param {number} col
+ * @param {number} row
+ */
+bg.Board.prototype.addCharactor = function(col, row) {
+    this.charactor = new bg.Charactor();
+    this.charactor.r = row;
+    this.charactor.c = col;
+    this.charactor.setPosition((col - .5) * this.GAP, (row - .5) * this.GAP);
+    this.charactor.setSize(this.GAP, this.GAP);
+    this.charLayer.appendChild(this.charactor);
 };
 
 /**
  * Handle presses on the board
  * @param {lime.Event} e Event.
  */
-
 bg.Board.prototype.pressHandler_ = function(e) {
     // no touching allowed when still moving
     if (this.isMoving_) return;
@@ -75,7 +76,34 @@ bg.Board.prototype.pressHandler_ = function(e) {
     var pos = e.position;
 
     // get row and col values for the touch
-    var c = Math.floor(pos.x / this.GAP);
-    var r = this.rows - Math.ceil(pos.y / this.GAP);
+    // var clickCol = Math.floor(pos.x / this.GAP);
+    var clickCol = Math.ceil(pos.x / this.GAP);
+    var clickRow = Math.ceil(pos.y / this.GAP);
 
+    if (this.checkAdjacent(this.charactor, clickCol, clickRow)) {
+        // if charactor and selected loc are adjacent then move
+        this.moveCharactor(this.charactor, clickCol, clickRow);
+    }
+
+};
+
+/**
+ * Return true if charactor and clicked location are adjacent
+ * @param {bg.Charactor} charactor
+ * @param {number} clickCol
+ * @param {number} clickRow
+ * @return {boolean} Adjacent or not
+ */
+bg.Board.prototype.checkAdjacent = function(charactor, clickCol, clickRow) {
+    return charactor.r == clickRow && Math.abs(charactor.c - clickCol) == 1 ||
+           charactor.c == clickCol && Math.abs(charactor.r - clickRow) == 1;
+};
+
+bg.Board.prototype.moveCharactor = function(charactor, clickCol, clickRow) {
+    this.isMoving_ = 1;
+    var move = new lime.animation.MoveTo((clickCol - .5) * this.GAP, (clickRow - .5) * this.GAP);
+    charactor.runAction(move);
+    charactor.c = clickCol;
+    charactor.r = clickRow;
+    this.isMoving_ = 0; 
 };

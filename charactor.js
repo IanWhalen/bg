@@ -14,8 +14,8 @@ bg.Charactor = function() {
 
     // graphical body object
     this.circle = new lime.Sprite();
-    // this.circle.setFill('/assets/ball_0.png');
     this.appendChild(this.circle);
+    this.circle.setFill('assets/ball_0.png');
 
     this.qualityRenderer = true;
 };
