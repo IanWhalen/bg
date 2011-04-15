@@ -20,48 +20,39 @@ bg.start = function() {
     bg.director = new lime.Director(document.body, bg.WIDTH, bg.HEIGHT);
 	  bg.director.makeMobileWebAppCapable();
 
-    bg.loadMenu();
+    bg.charactorSelect();
 };
 
 // load menu scene
-bg.loadMenu = function() {
+bg.charactorSelect = function() {
   var scene = new lime.Scene(),
           layer = new lime.Layer().setPosition(bg.WIDTH / 2, 0);
 
       if(bg.isBrokenChrome()) layer.setRenderer(lime.Renderer.CANVAS);
 
 
-      var btns = new lime.Layer().setPosition(0, 430);
-      layer.appendChild(btns);
+      var charSelectBtns = new lime.Layer().setPosition(0, 430);
+      layer.appendChild(charSelectBtns);
       var move = new lime.animation.MoveBy(-bg.WIDTH, 0).enableOptimizations();
 
-      var btn = bg.makeButton('Play').setPosition(0, 200);
-      goog.events.listen(btn, 'click', function() {
-          btns.runAction(move);
+      var lbl = new lime.Label().setText('Choose a Character to Play:').
+        setFontColor('#FFFFFF').
+        setFontSize(24).
+        setPosition(0, 140);
+      var charSelect1 = bg.makeCharSelectButton('Charactor 1').setPosition(0, 200);
+      goog.events.listen(charSelect1, 'click', function() {
+          bg.newgame('char1')
       });
-      btns.appendChild(btn);
-
-      // second area to slide in
-      var btns2 = new lime.Layer().setPosition(bg.WIDTH, 0);
-      btns.appendChild(btns2);
-
-      var lbl = new lime.Label().setText('Really play?').setFontColor('#FFFFFF').setFontSize(24).setPosition(0, 140);
-      btns2.appendChild(lbl);
-
-      btn = bg.makeButton('Really Play').setPosition(0, 200);
-      goog.events.listen(btn, 'click', function() {
-        bg.newgame(); 
-      });
-      btns2.appendChild(btn);
+      charSelectBtns.appendChild(charSelect1);
 
       scene.appendChild(layer);
 
       bg.director.replaceScene(scene, lime.transitions.Dissolve);
 };
 
-// helper for same size buttons
-bg.makeButton = function(text) {
-    var btn = new lime.GlossyButton(text).setSize(300, 90);
+// helper for char select buttons
+bg.makeCharSelectButton = function(text) {
+    var btn = new lime.GlossyButton(text).setSize(180, 180);
     return btn;
 };
 
@@ -70,8 +61,8 @@ bg.isBrokenChrome = function() {
 };
 
 // load new game scene
-bg.newgame = function() {
-    var scene = new bg.Game();
+bg.newgame = function(charactor) {
+    var scene = new bg.Game(charactor);
     bg.director.replaceScene(scene, lime.transitions.Dissolve);
 };
 

@@ -9,9 +9,8 @@ goog.require('bg.Location');
 
 /**
  * Board object. Manages the playing field.
- * @param {number} rows, Number of rows on board.
- * @param {number} columns, Number of columns on board.
  * @param {lime.Game} game
+ * @param {text} charactor Name of charactor
  * @constructor
  * @extends lime.Sprite
  */
@@ -35,11 +34,7 @@ bg.Board = function(game) {
     this.back = new lime.Layer().setSize(690, 690).setAnchorPoint(0, 0).setPosition(0, 0);
     this.appendChild(this.back);
     for (var key in locMap) {
-        var obj = locMap[key];
-        var loc = new lime.Sprite().setSize(obj['sizeX'], obj['sizeY']).
-          setAnchorPoint(obj['anchorX'], obj['anchorY']).
-          setPosition(obj['positionX'], obj['positionY']).
-          setFill(obj['fillColor']);
+        var loc = new bg.Location(locMap[key]);
         loc.qualityRenderer = true;
         this.back.appendChild(loc);
     };
@@ -47,8 +42,7 @@ bg.Board = function(game) {
     // create layer to contain Charactor
     this.charLayer = new lime.Layer();
     this.appendChild(this.charLayer);
-    var charactorStartLoc = locMap['loc0'];
-    this.addCharactor(charactorStartLoc);
+    this.addCharactor(this.game.charactor);
 
     // create layer to contain Foes
     this.foeLayer = new lime.Layer();
@@ -63,17 +57,13 @@ bg.Board = function(game) {
 goog.inherits(bg.Board, lime.Sprite);
 
 /**
- * Add locations to make board
- * @param {}
- */
-
-/**
  * Add a new foe sprite to the board
  * @param {}
  */ 
 bg.Board.prototype.addFoe = function(loc) {
     this.foe = new bg.Foe();
     this.foe.loc = loc;
+    this.foe.moveShape = 'cross';
     this.foe.setPosition(loc.positionX + (loc.sizeX / 2), loc.positionY + (loc.sizeY / 2));
     this.foe.setSize(this.GAP, this.GAP);
     this.foeLayer.appendChild(this.foe);
@@ -81,14 +71,12 @@ bg.Board.prototype.addFoe = function(loc) {
 
 /**
  * Add a new charactor sprite to the board
- * @param {}
+ * @param {text} charName Name of charactor.
  */
-bg.Board.prototype.addCharactor = function(loc) {
-    this.charactor = new bg.Charactor();
-    this.charactor.loc = loc;
-    this.charactor.moveCount = 5;
-    this.charactor.health = 10;
-    this.charactor.setPosition(loc.positionX + (loc.sizeX / 2), loc.positionY + (loc.sizeY / 2));
+bg.Board.prototype.addCharactor = function(charName) {
+    this.charactor = new bg.Charactor(charName);
+    this.charactor.setPosition(this.charactor.loc.positionX + (this.charactor.loc.sizeX / 2),
+        this.charactor.loc.positionY + (this.charactor.loc.sizeY / 2));
     this.charactor.setSize(this.GAP, this.GAP);
     this.charLayer.appendChild(this.charactor);
 };
@@ -147,9 +135,12 @@ bg.Board.prototype.moveCharactor = function(charactor, clickLoc) {
     goog.events.listen(move, lime.animation.Event.STOP, function() {
         this.isMoving_ = 0;
         this.checkCombat(this.charactor, this.foeLayer);
+        charactor.moveCount -= 1;
+        if (charactor.moveCount == 0) {
+            this.game.turnPhase = 'FOE_MOVE';
+        };
         },
         false, this);
-    charactor.moveCount -= 1;
 };
 
 /**
@@ -169,6 +160,7 @@ var locMap = {
                             'loc1':1,
                             'loc4':1,
                           },
+              'blackMove': 'loc1',
             },
     'loc1': {
               'name': 'loc1',
@@ -184,6 +176,7 @@ var locMap = {
                             'loc2':1,
                             'loc5':1,
                           },
+              'blackMove': 'loc2',
             },
     'loc2': {
               'name': 'loc2',
@@ -199,6 +192,7 @@ var locMap = {
                             'loc3':1,
                             'loc6':1,
                           },
+              'blackMove': 'loc3',
             },
     'loc3': {
               'name': 'loc3',
@@ -213,6 +207,7 @@ var locMap = {
                             'loc2':1,
                             'loc7':1,
                           },
+              'blackMove': 'loc7',
             },
     'loc4': {
               'name': 'loc4',
@@ -228,6 +223,7 @@ var locMap = {
                             'loc5':1,
                             'loc8':1,
                           },
+              'blackMove': 'loc0',
             },
     'loc5': {
               'name': 'loc5',
@@ -244,6 +240,7 @@ var locMap = {
                             'loc6':1,
                             'loc9':1,
                           },
+              'blackMove': 'loc4',
             },
     'loc6': {
               'name': 'loc6',
@@ -260,6 +257,7 @@ var locMap = {
                             'loc7':1,
                             'loc10':1,
                           },
+              'blackMove': 'loc5',
             },
     'loc7': {
               'name': 'loc7',
@@ -275,6 +273,7 @@ var locMap = {
                             'loc6':1,
                             'loc11':1,
                           },
+              'blackMove': 'loc6',
             },
     'loc8': {
               'name': 'loc8',
@@ -290,6 +289,7 @@ var locMap = {
                             'loc9':1,
                             'loc12':1,
                           },
+              'blackMove': 'loc4',
             },
     'loc9': {
               'name': 'loc9',
@@ -306,6 +306,7 @@ var locMap = {
                             'loc10':1,
                             'loc13':1,
                           },
+              'blackMove': 'loc8',
             },
     'loc10': {
               'name': 'loc10',
@@ -322,6 +323,7 @@ var locMap = {
                             'loc11':1,
                             'loc14':1,
                           },
+              'blackMove': 'loc11',
             },
     'loc11': {
               'name': 'loc11',
@@ -337,6 +339,7 @@ var locMap = {
                             'loc10':1,
                             'loc15':1,
                           },
+              'blackMove': 'loc7',
             },
     'loc12': {
               'name': 'loc12',
@@ -351,6 +354,7 @@ var locMap = {
                             'loc8':1,
                             'loc13':1,
                           },
+              'blackMove': 'loc13',
             },
     'loc13': {
               'name': 'loc13',
@@ -366,6 +370,7 @@ var locMap = {
                             'loc12':1,
                             'loc14':1,
                           },
+              'blackMove': 'loc14',
             },
     'loc14': {
               'name': 'loc14',
@@ -381,6 +386,7 @@ var locMap = {
                             'loc13':1,
                             'loc15':1,
                           },
+              'blackMove': 'loc13',
             },
     'loc15': {
               'name': 'loc15',
@@ -395,5 +401,6 @@ var locMap = {
                             'loc11':1,
                             'loc14':1,
                           },
+              'blackMove': 'loc11',
             },
 };

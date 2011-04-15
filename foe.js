@@ -6,7 +6,6 @@ goog.require('lime.Circle');
 /**
  * Single foe object
  * @constructor
- * @extends lime.Sprite
  */
 bg.Foe = function() {
     goog.base(this);

@@ -9,13 +9,20 @@ goog.require('lime.Circle');
  * @constructor
  * @extends lime.Sprite
  */
-bg.Charactor = function() {
+bg.Charactor = function(charName) {
     goog.base(this);
 
-    // graphical body object
+    charactorData = charactors[charName];
+
+    // Graphical body object
     this.circle = new lime.Sprite();
     this.appendChild(this.circle);
-    this.circle.setFill('assets/ball_0.png');
+    this.circle.setFill(charactorData.imageAsset);
+
+    // Gameplay data
+    this.loc = locMap[charactorData.startLoc];
+    this.moveCount = charactorData.speed;
+    this.health = charactorData.health;
 
     this.qualityRenderer = true;
 };
@@ -31,3 +38,12 @@ bg.Charactor.prototype.update = function() {
 
     lime.Node.prototype.update.call(this);
 };
+
+var charactors = {
+    'char1': {
+              'startLoc': 'loc0',
+              'imageAsset': 'assets/ball_0.png',
+              'speed': 1,
+              'health': 5,
+             },
+}

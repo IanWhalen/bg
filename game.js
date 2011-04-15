@@ -1,13 +1,16 @@
 goog.provide('bg.Game');
 
+goog.require('bg.Sideboard');
+
 /** 
  * Game scene for test board game.
  * @constructor
  * @extends lime.Scene
  */
-bg.Game = function() {
+bg.Game = function(charactor) {
     lime.Scene.call(this);
 
+    this.charactor = charactor;
     this.turnPhase = 'PLAYER_MOVE';
 
     // empty layer for contents
@@ -15,7 +18,10 @@ bg.Game = function() {
     this.appendChild(layer);
 
     // make board
-    this.board = new bg.Board(3, 3, this).setPosition(0, 174);
+    this.board = new bg.Board(this).setPosition(0, 174);
+
+    // make sideboard
+    this.sideboard = new bg.Sideboard(this);
 
     if(bg.isBrokenChrome()) this.board.SetRenderer(lime.Renderer.CANVAS);
     layer.appendChild(this.board);
@@ -44,13 +50,39 @@ bg.Game = function() {
     // update health when changed
     lime.scheduleManager.scheduleWithDelay(this.updateHealth, this, 100);
 
+    lime.scheduleManager.scheduleWithDelay(this.moveFoes, this, 100);
+
 };
 goog.inherits(bg.Game, lime.Scene);
 
 // Change to foe move stage if player moves are done
 bg.Game.prototype.moveFoes = function() {
-    if (bg.Board.charactor.moveCount == 0) {
-        
+    if (this.turnPhase == 'FOE_MOVE') {
+        var mythosCard = this.sideboard.mythosDeck.children_.pop();
+        for (var each in this.board.foeLayer.children_) {
+            this.board.isMoving_ = 1;
+            var foe = this.board.foeLayer.children_[each];
+            currentLoc = foe.loc.name;
+            if (foe.moveShape in mythosCard.blackMove) {
+                var targetLoc = locMap[locMap[currentLoc].blackMove];
+            } else if (foe.moveShape in mythosCard.whiteMove) {
+                var targetLoc = locMap[locMap[currentLoc].whiteMove];
+            } else {
+                this.board.isMoving_ = 0;
+                continue;
+            }
+            var move = new lime.animation.MoveTo(targetLoc.positionX + (targetLoc.sizeX / 2), targetLoc.positionY + (targetLoc.sizeY / 2));
+            foe.loc = targetLoc;
+            foe.runAction(move);
+            goog.events.listen(move, lime.animation.Event.STOP, function() {
+                this.board.checkCombat(this.board.charactor, this.board.foeLayer);
+                this.board.isMoving_ = 0;
+                },
+                false, this);
+        }
+        this.sideboard.mythosDiscard.children_.push(mythosCard);
+        this.board.charactor.moveCount = 1;
+        this.turnPhase = 'PLAYER_MOVE';
     }
 }
 
