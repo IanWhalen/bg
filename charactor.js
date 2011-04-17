@@ -9,8 +9,9 @@ goog.require('lime.Circle');
  * @constructor
  * @extends lime.Sprite
  */
-bg.Charactor = function(charName) {
+bg.Charactor = function(board, charName) {
     goog.base(this);
+    this.board = board;
 
     charactorData = charactors[charName];
 
@@ -19,8 +20,13 @@ bg.Charactor = function(charName) {
     this.appendChild(this.circle);
     this.circle.setFill(charactorData.imageAsset);
 
+    // Board data
+    this.loc = this.board.getLocFromName(charactorData.startLoc);
+    this.setPosition(this.loc.position_.x + (this.loc.size_.width / 2),
+        this.loc.position_.y + (this.loc.size_.height / 2));
+    this.setSize(this.board.GAP, this.board.GAP);
+
     // Gameplay data
-    this.loc = locMap[charactorData.startLoc];
     this.moveCount = charactorData.speed;
     this.health = charactorData.health;
 

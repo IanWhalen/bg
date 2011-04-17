@@ -14,7 +14,7 @@ goog.require('bg.Location');
  * @constructor
  * @extends lime.Sprite
  */
-bg.Board = function(game) {
+bg.Board = function(game, charName) {
     lime.Sprite.call(this);
 
     this.game = game;
@@ -31,23 +31,23 @@ bg.Board = function(game) {
     this.GAP = 180;
 
     // create layer to contain Locations
-    this.back = new lime.Layer().setSize(690, 690).setAnchorPoint(0, 0).setPosition(0, 0);
-    this.appendChild(this.back);
+    this.map = new lime.Layer().setSize(690, 690).setAnchorPoint(0, 0).setPosition(0, 0);
+    this.appendChild(this.map);
     for (var key in locMap) {
         var loc = new bg.Location(locMap[key]);
-        loc.qualityRenderer = true;
-        this.back.appendChild(loc);
+        this.map.appendChild(loc);
     };
 
     // create layer to contain Charactor
     this.charLayer = new lime.Layer();
     this.appendChild(this.charLayer);
-    this.addCharactor(this.game.charactor);
+    this.charactor = new bg.Charactor(this, charName);
+    this.charLayer.appendChild(this.charactor);
 
     // create layer to contain Foes
     this.foeLayer = new lime.Layer();
     this.appendChild(this.foeLayer);
-    var foeStartLoc = locMap['loc6'];
+    var foeStartLoc = this.getLocFromName('loc6');
     this.addFoe(foeStartLoc);
 
     // register listener
@@ -55,6 +55,13 @@ bg.Board = function(game) {
 
 };
 goog.inherits(bg.Board, lime.Sprite);
+
+bg.Board.prototype.getLocFromName = function(name) {
+    locArray = this.map.children_;
+    for (var each in locArray) {
+        if (locArray[each].name == name) return locArray[each];
+    };
+};
 
 /**
  * Add a new foe sprite to the board
@@ -64,7 +71,7 @@ bg.Board.prototype.addFoe = function(loc) {
     this.foe = new bg.Foe();
     this.foe.loc = loc;
     this.foe.moveShape = 'cross';
-    this.foe.setPosition(loc.positionX + (loc.sizeX / 2), loc.positionY + (loc.sizeY / 2));
+    this.foe.setPosition(loc.position_.x + (loc.size_.width / 2), loc.position_.y + (loc.size_.height / 2));
     this.foe.setSize(this.GAP, this.GAP);
     this.foeLayer.appendChild(this.foe);
 };
@@ -75,9 +82,6 @@ bg.Board.prototype.addFoe = function(loc) {
  */
 bg.Board.prototype.addCharactor = function(charName) {
     this.charactor = new bg.Charactor(charName);
-    this.charactor.setPosition(this.charactor.loc.positionX + (this.charactor.loc.sizeX / 2),
-        this.charactor.loc.positionY + (this.charactor.loc.sizeY / 2));
-    this.charactor.setSize(this.GAP, this.GAP);
     this.charLayer.appendChild(this.charactor);
 };
 
@@ -118,10 +122,10 @@ bg.Board.prototype.checkCombat = function(charactor, foeLayer) {
  * @return {}
  */
 bg.Board.prototype.getLoc = function(pos) {
-    for (var each in locMap) {
-        var loc = locMap[each]
-        if (loc.positionX < pos.x && pos.x < (loc.positionX + loc.sizeX) &&
-            loc.positionY < pos.y && pos.y < (loc.positionY + loc.sizeY)) {
+    for (var each in this.map.children_) {
+        var loc = this.map.children_[each]
+        if (loc.position_.x < pos.x && pos.x < (loc.position_.x + loc.size_.width) &&
+            loc.position_.y < pos.y && pos.y < (loc.position_.y + loc.size_.height)) {
             return loc;
         };
     };
@@ -129,7 +133,8 @@ bg.Board.prototype.getLoc = function(pos) {
 
 bg.Board.prototype.moveCharactor = function(charactor, clickLoc) {
     this.isMoving_ = 1;
-    var move = new lime.animation.MoveTo(clickLoc.positionX + (clickLoc.sizeX / 2), clickLoc.positionY + (clickLoc.sizeY / 2));
+    var move = new lime.animation.MoveTo(clickLoc.position_.x + (clickLoc.size_.width / 2),
+        clickLoc.position_.y + (clickLoc.size_.height / 2));
     charactor.loc = clickLoc;
     charactor.runAction(move);
     goog.events.listen(move, lime.animation.Event.STOP, function() {
@@ -137,270 +142,8 @@ bg.Board.prototype.moveCharactor = function(charactor, clickLoc) {
         this.checkCombat(this.charactor, this.foeLayer);
         charactor.moveCount -= 1;
         if (charactor.moveCount == 0) {
-            this.game.turnPhase = 'FOE_MOVE';
+            this.game.turnPhase = 'MYTHOS_PHASE';
         };
         },
         false, this);
-};
-
-/**
- *
- */
-var locMap = {
-    'loc0': {
-              'name': 'loc0',
-              'anchorX': 0,
-              'anchorY': 0,
-              'sizeX': 180,
-              'sizeY': 180,
-              'positionX': 0,
-              'positionY': 0,
-              'fillColor': '#295081',
-              'adjacent': {
-                            'loc1':1,
-                            'loc4':1,
-                          },
-              'blackMove': 'loc1',
-            },
-    'loc1': {
-              'name': 'loc1',
-              'anchorX': 0,
-              'anchorY': 0,
-              'sizeX': 180,
-              'sizeY': 180,
-              'positionX': 181,
-              'positionY': 0,
-              'fillColor': '#FF0000',
-              'adjacent': {
-                            'loc0':1,
-                            'loc2':1,
-                            'loc5':1,
-                          },
-              'blackMove': 'loc2',
-            },
-    'loc2': {
-              'name': 'loc2',
-              'anchorX': 0,
-              'anchorY': 0,
-              'sizeX': 180,
-              'sizeY': 180,
-              'positionX': 361,
-              'positionY': 0,
-              'fillColor': '#295081',
-              'adjacent': {
-                            'loc1':1,
-                            'loc3':1,
-                            'loc6':1,
-                          },
-              'blackMove': 'loc3',
-            },
-    'loc3': {
-              'name': 'loc3',
-              'anchorX': 0,
-              'anchorY': 0,
-              'sizeX': 180,
-              'sizeY': 180,
-              'positionX': 541,
-              'positionY': 0,
-              'fillColor': '#CCC',
-              'adjacent': {
-                            'loc2':1,
-                            'loc7':1,
-                          },
-              'blackMove': 'loc7',
-            },
-    'loc4': {
-              'name': 'loc4',
-              'anchorX': 0,
-              'anchorY': 0,
-              'sizeX': 180,
-              'sizeY': 180,
-              'positionX': 0,
-              'positionY': 181,
-              'fillColor': '#295081',
-              'adjacent': {
-                            'loc0':1,
-                            'loc5':1,
-                            'loc8':1,
-                          },
-              'blackMove': 'loc0',
-            },
-    'loc5': {
-              'name': 'loc5',
-              'anchorX': 0,
-              'anchorY': 0,
-              'sizeX': 180,
-              'sizeY': 180,
-              'positionX': 181,
-              'positionY': 181,
-              'fillColor': '#295081',
-              'adjacent': {
-                            'loc1':1,
-                            'loc4':1,
-                            'loc6':1,
-                            'loc9':1,
-                          },
-              'blackMove': 'loc4',
-            },
-    'loc6': {
-              'name': 'loc6',
-              'anchorX': 0,
-              'anchorY': 0,
-              'sizeX': 180,
-              'sizeY': 180,
-              'positionX': 361,
-              'positionY': 181,
-              'fillColor': '#295081',
-              'adjacent': {
-                            'loc2':1,
-                            'loc5':1,
-                            'loc7':1,
-                            'loc10':1,
-                          },
-              'blackMove': 'loc5',
-            },
-    'loc7': {
-              'name': 'loc7',
-              'anchorX': 0,
-              'anchorY': 0,
-              'sizeX': 180,
-              'sizeY': 180,
-              'positionX': 541,
-              'positionY': 181,
-              'fillColor': '#295081',
-              'adjacent': {
-                            'loc3':1,
-                            'loc6':1,
-                            'loc11':1,
-                          },
-              'blackMove': 'loc6',
-            },
-    'loc8': {
-              'name': 'loc8',
-              'anchorX': 0,
-              'anchorY': 0,
-              'sizeX': 180,
-              'sizeY': 180,
-              'positionX': 0,
-              'positionY': 361,
-              'fillColor': '#295081',
-              'adjacent': {
-                            'loc4':1,
-                            'loc9':1,
-                            'loc12':1,
-                          },
-              'blackMove': 'loc4',
-            },
-    'loc9': {
-              'name': 'loc9',
-              'anchorX': 0,
-              'anchorY': 0,
-              'sizeX': 180,
-              'sizeY': 180,
-              'positionX': 181,
-              'positionY': 361,
-              'fillColor': '#295081',
-              'adjacent': {
-                            'loc5':1,
-                            'loc8':1,
-                            'loc10':1,
-                            'loc13':1,
-                          },
-              'blackMove': 'loc8',
-            },
-    'loc10': {
-              'name': 'loc10',
-              'anchorX': 0,
-              'anchorY': 0,
-              'sizeX': 180,
-              'sizeY': 180,
-              'positionX': 361,
-              'positionY': 361,
-              'fillColor': '#295081',
-              'adjacent': {
-                            'loc6':1,
-                            'loc9':1,
-                            'loc11':1,
-                            'loc14':1,
-                          },
-              'blackMove': 'loc11',
-            },
-    'loc11': {
-              'name': 'loc11',
-              'anchorX': 0,
-              'anchorY': 0,
-              'sizeX': 180,
-              'sizeY': 180,
-              'positionX': 541,
-              'positionY': 361,
-              'fillColor': '#295081',
-              'adjacent': {
-                            'loc7':1,
-                            'loc10':1,
-                            'loc15':1,
-                          },
-              'blackMove': 'loc7',
-            },
-    'loc12': {
-              'name': 'loc12',
-              'anchorX': 0,
-              'anchorY': 0,
-              'sizeX': 180,
-              'sizeY': 180,
-              'positionX': 0,
-              'positionY': 541,
-              'fillColor': '#295081',
-              'adjacent': {
-                            'loc8':1,
-                            'loc13':1,
-                          },
-              'blackMove': 'loc13',
-            },
-    'loc13': {
-              'name': 'loc13',
-              'anchorX': 0,
-              'anchorY': 0,
-              'sizeX': 180,
-              'sizeY': 180,
-              'positionX': 181,
-              'positionY': 541,
-              'fillColor': '#295081',
-              'adjacent': {
-                            'loc9':1,
-                            'loc12':1,
-                            'loc14':1,
-                          },
-              'blackMove': 'loc14',
-            },
-    'loc14': {
-              'name': 'loc14',
-              'anchorX': 0,
-              'anchorY': 0,
-              'sizeX': 180,
-              'sizeY': 180,
-              'positionX': 361,
-              'positionY': 541,
-              'fillColor': '#295081',
-              'adjacent': {
-                            'loc10':1,
-                            'loc13':1,
-                            'loc15':1,
-                          },
-              'blackMove': 'loc13',
-            },
-    'loc15': {
-              'name': 'loc15',
-              'anchorX': 0,
-              'anchorY': 0,
-              'sizeX': 180,
-              'sizeY': 180,
-              'positionX': 541,
-              'positionY': 541,
-              'fillColor': '#295081',
-              'adjacent': {
-                            'loc11':1,
-                            'loc14':1,
-                          },
-              'blackMove': 'loc11',
-            },
 };

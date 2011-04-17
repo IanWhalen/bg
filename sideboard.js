@@ -13,17 +13,27 @@ bg.Sideboard = function(game) {
     lime.Layer.call(this);
 
     this.game = game;
-
+    
+    // Create initial Mythos Deck
     this.mythosDiscard = new lime.Layer();
     this.appendChild(this.mythosDiscard);
     for (var key in mythosDeckData) {
         var cardData = mythosDeckData[key];
         this.addMythosCard(cardData);
     };
-
     this.mythosDeck = new lime.Layer();
     this.appendChild(this.mythosDeck);
 
+    // Create Hell Gate collection
+    this.gateStack = new lime.Layer();
+    this.appendChild(this.gateStack);
+    for (var key in gateStackData) {
+        var gateData = gateStackData[key];
+        this.addGate(gateData);
+    };
+    this.gateStack.children_ = this.shuffle(this.gateStack.children_);
+
+    // Shuffle discard pile back into deck if any deck is empty
     lime.scheduleManager.schedule(this.deckShuffler, this);
 
 };
@@ -49,6 +59,12 @@ bg.Sideboard.prototype.shuffle = function(array) {
     return array;
 };
 
+bg.Sideboard.prototype.addGate = function(gateData) {
+    this.gate = new lime.Node();
+    this.gate.name = gateData['name'];
+    this.gateStack.appendChild(this.gate);
+};
+
 bg.Sideboard.prototype.addMythosCard = function(cardData) {
     this.card = new lime.Node();
     this.card.clueLoc = cardData['clueLoc'];
@@ -57,6 +73,15 @@ bg.Sideboard.prototype.addMythosCard = function(cardData) {
     this.card.whiteMove = cardData['whiteMove'];
     this.mythosDiscard.appendChild(this.card);
 };
+
+var gateStackData = {
+    '01': {
+            'name': '1st Level',
+          },
+    '02': {
+            'name': '2nd Level',
+          },
+}
 
 var mythosDeckData = {
     '001': {

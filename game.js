@@ -7,10 +7,9 @@ goog.require('bg.Sideboard');
  * @constructor
  * @extends lime.Scene
  */
-bg.Game = function(charactor) {
+bg.Game = function(charName) {
     lime.Scene.call(this);
 
-    this.charactor = charactor;
     this.turnPhase = 'PLAYER_MOVE';
 
     // empty layer for contents
@@ -18,7 +17,7 @@ bg.Game = function(charactor) {
     this.appendChild(layer);
 
     // make board
-    this.board = new bg.Board(this).setPosition(0, 174);
+    this.board = new bg.Board(this, charName).setPosition(0, 174);
 
     // make sideboard
     this.sideboard = new bg.Sideboard(this);
@@ -50,40 +49,63 @@ bg.Game = function(charactor) {
     // update health when changed
     lime.scheduleManager.scheduleWithDelay(this.updateHealth, this, 100);
 
-    lime.scheduleManager.scheduleWithDelay(this.moveFoes, this, 100);
+    lime.scheduleManager.scheduleWithDelay(this.drawMythosCard, this, 100);
 
 };
 goog.inherits(bg.Game, lime.Scene);
 
-// Change to foe move stage if player moves are done
-bg.Game.prototype.moveFoes = function() {
-    if (this.turnPhase == 'FOE_MOVE') {
+// Draw mythos card and execute steps
+bg.Game.prototype.drawMythosCard = function() {
+    if (this.turnPhase == 'MYTHOS_PHASE') {
         var mythosCard = this.sideboard.mythosDeck.children_.pop();
-        for (var each in this.board.foeLayer.children_) {
-            this.board.isMoving_ = 1;
-            var foe = this.board.foeLayer.children_[each];
-            currentLoc = foe.loc.name;
-            if (foe.moveShape in mythosCard.blackMove) {
-                var targetLoc = locMap[locMap[currentLoc].blackMove];
-            } else if (foe.moveShape in mythosCard.whiteMove) {
-                var targetLoc = locMap[locMap[currentLoc].whiteMove];
-            } else {
-                this.board.isMoving_ = 0;
-                continue;
-            }
-            var move = new lime.animation.MoveTo(targetLoc.positionX + (targetLoc.sizeX / 2), targetLoc.positionY + (targetLoc.sizeY / 2));
-            foe.loc = targetLoc;
-            foe.runAction(move);
-            goog.events.listen(move, lime.animation.Event.STOP, function() {
-                this.board.checkCombat(this.board.charactor, this.board.foeLayer);
-                this.board.isMoving_ = 0;
-                },
-                false, this);
+        // this.spawnGate(mythosCard);
+        this.moveFoes(mythosCard);
+    };
+};
+
+bg.Game.prototype.spawnGate = function(mythosCard) {
+    targetLoc = this.board.getLocFromName(mythosCard.spawnLoc);
+    if (this.board.backgroundtargetLoc.gate) {
+        this.foeSurge();
+    } else {
+        // this.board.
+    };
+}
+
+// Execute Move Foes step of Mythos phase
+bg.Game.prototype.moveFoes = function(mythosCard) {
+    foes_in_play = this.board.foeLayer.children_;
+
+    for (var each in foes_in_play) {
+        this.board.isMoving_ = 1;
+        var foe = foes_in_play[each];
+
+        // Determine if foe should move along black or white path, if at all
+        if (foe.moveShape in mythosCard.blackMove) {
+            var moveDir = 'blackMove';
+        } else if (foe.moveShape in mythosCard.whiteMove) {
+            var moveDir = 'whiteMove';
+        } else {
+            this.board.isMoving_ = 0;
+            continue;
         }
-        this.sideboard.mythosDiscard.children_.push(mythosCard);
-        this.board.charactor.moveCount = 1;
-        this.turnPhase = 'PLAYER_MOVE';
+
+        var currentLoc = this.board.getLocFromName(foe.loc.name);
+        var targetLoc = this.board.getLocFromName(currentLoc[moveDir]);
+
+        var move = new lime.animation.MoveTo(targetLoc.position_.x + (targetLoc.size_.width / 2),
+            targetLoc.position_.y + (targetLoc.size_.height / 2));
+        foe.loc = targetLoc;
+        foe.runAction(move);
+        goog.events.listen(move, lime.animation.Event.STOP, function() {
+        this.board.checkCombat(this.board.charactor, this.board.foeLayer);
+        this.board.isMoving_ = 0;
+        },
+            false, this);
     }
+    this.sideboard.mythosDiscard.children_.push(mythosCard);
+    this.board.charactor.moveCount = 1;
+    this.turnPhase = 'PLAYER_MOVE';
 }
 
 // Increase value of hits when hit count has changed
