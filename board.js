@@ -23,7 +23,7 @@ bg.Board = function(game, charName) {
      * @const
      * @type {number}
      */
-    this.SIZE = 720;
+    this.SIZE = 1080;
 
     this.setSize(this.SIZE, this.SIZE).setAnchorPoint(0, 0);
 
@@ -47,8 +47,6 @@ bg.Board = function(game, charName) {
     // create layer to contain Foes
     this.foeLayer = new lime.Layer();
     this.appendChild(this.foeLayer);
-    var foeStartLoc = this.getLocFromName('loc6');
-    this.addFoe(foeStartLoc);
 
     // register listener
     goog.events.listen(this, ['mousedown', 'touchstart'], this.pressHandler_);
@@ -65,7 +63,7 @@ bg.Board.prototype.getLocFromName = function(name) {
 
 /**
  * Add a new foe sprite to the board
- * @param {}
+ * @param {bg.Location} loc
  */ 
 bg.Board.prototype.addFoe = function(loc) {
     this.foe = new bg.Foe();

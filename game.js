@@ -25,30 +25,6 @@ bg.Game = function(charName) {
     if(bg.isBrokenChrome()) this.board.SetRenderer(lime.Renderer.CANVAS);
     layer.appendChild(this.board);
 
-    // graphical lines for visual effect
-    var line = new lime.Sprite().setSize(670, 2).setFill('#295081').setPosition(720 * .5, 148);
-    layer.appendChild(line);
-    var line = new lime.Sprite().setSize(670, 2).setFill('#295081').setPosition(720 * .5, 885);
-    layer.appendChild(line);
-
-    var health_lbl = new lime.Label().setFontFamily('Trebuchet MS').
-      setFontColor('#4F96ED').setFontSize(24).setPosition(30, 22).
-      setText('Hits:').setAnchorPoint(0, 0).setFontWeight(700);
-    layer.appendChild(health_lbl);
-
-    this.healthDisplay = new lime.Label().setFontColor('#000').setFontSize(92).
-      setPosition(30, 40).setText(0).setAnchorPoint(0, 0).setFontWeight(700);
-    layer.appendChild(this.healthDisplay);
-
-    this.btn_menu = new lime.GlossyButton('Menu').setSize(140, 70).setPosition(100, 945);
-    goog.events.listen(this.btn_menu, 'click', function() {
-        bg.loadMenu();
-    });
-    this.appendChild(this.btn_menu);
-
-    // update health when changed
-    lime.scheduleManager.scheduleWithDelay(this.updateHealth, this, 100);
-
     lime.scheduleManager.scheduleWithDelay(this.drawMythosCard, this, 100);
 
 };
@@ -58,19 +34,30 @@ goog.inherits(bg.Game, lime.Scene);
 bg.Game.prototype.drawMythosCard = function() {
     if (this.turnPhase == 'MYTHOS_PHASE') {
         var mythosCard = this.sideboard.mythosDeck.children_.pop();
-        // this.spawnGate(mythosCard);
+        this.spawnGate(mythosCard);
         this.moveFoes(mythosCard);
     };
 };
 
 bg.Game.prototype.spawnGate = function(mythosCard) {
-    targetLoc = this.board.getLocFromName(mythosCard.spawnLoc);
-    if (this.board.backgroundtargetLoc.gate) {
+    var targetLoc = this.board.getLocFromName(mythosCard.spawnLoc);
+    if (targetLoc.gate) {
         this.foeSurge();
     } else {
-        // this.board.
+        targetLoc.gate = this.sideboard.gateStack.children_.pop();
+        targetLoc.setFill('#CCC');
+        this.board.addFoe(targetLoc);
     };
 }
+
+bg.Game.prototype.foeSurge = function() {
+    var locArray = this.board.map.children_;
+    for (var each in locArray) {
+        if (locArray[each].gate) {
+            this.board.addFoe(locArray[each]);
+        }
+    }
+};
 
 // Execute Move Foes step of Mythos phase
 bg.Game.prototype.moveFoes = function(mythosCard) {
@@ -107,11 +94,3 @@ bg.Game.prototype.moveFoes = function(mythosCard) {
     this.board.charactor.moveCount = 1;
     this.turnPhase = 'PLAYER_MOVE';
 }
-
-// Increase value of hits when hit count has changed
-bg.Game.prototype.updateHealth = function() {
-    var curHealth = parseInt(this.healthDisplay.getText(), 10);
-    if (curHealth != this.board.charactor.health) {
-        this.healthDisplay.setText(this.board.charactor.health);
-    }
-};

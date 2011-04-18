@@ -74,6 +74,20 @@ bg.Sideboard.prototype.addMythosCard = function(cardData) {
     this.mythosDiscard.appendChild(this.card);
 };
 
+var foeCupData = {
+    '001': {
+            'name': 'Vampire',
+            'awareness': '-3',
+            'moveColor': 'black',
+            'moveShape': 'crescent',
+            'horrorRating': 0,
+            'horrorDamage': 2,
+            'toughness': 2,
+            'combatRating': -3,
+            'combatDamage': 3,
+           },
+}
+
 var gateStackData = {
     '01': {
             'name': '1st Level',

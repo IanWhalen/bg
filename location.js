@@ -22,7 +22,7 @@ bg.Location = function(locData) {
 goog.inherits(bg.Location, lime.Sprite);
 
 var locMap = {
-    'loc0': {
+    '001': {
               'name': 'loc0',
               'anchorX': 0,
               'anchorY': 0,
@@ -37,7 +37,7 @@ var locMap = {
                           },
               'blackMove': 'loc1',
             },
-    'loc1': {
+    '002': {
               'name': 'loc1',
               'anchorX': 0,
               'anchorY': 0,
@@ -45,7 +45,7 @@ var locMap = {
               'sizeY': 180,
               'positionX': 181,
               'positionY': 0,
-              'fillColor': '#FF0000',
+              'fillColor': '#295081',
               'adjacent': {
                             'loc0':1,
                             'loc2':1,
@@ -53,7 +53,7 @@ var locMap = {
                           },
               'blackMove': 'loc2',
             },
-    'loc2': {
+    '003': {
               'name': 'loc2',
               'anchorX': 0,
               'anchorY': 0,
@@ -69,7 +69,7 @@ var locMap = {
                           },
               'blackMove': 'loc3',
             },
-    'loc3': {
+    '004': {
               'name': 'loc3',
               'anchorX': 0,
               'anchorY': 0,
@@ -77,14 +77,14 @@ var locMap = {
               'sizeY': 180,
               'positionX': 541,
               'positionY': 0,
-              'fillColor': '#CCC',
+              'fillColor': '#295081',
               'adjacent': {
                             'loc2':1,
                             'loc7':1,
                           },
               'blackMove': 'loc7',
             },
-    'loc4': {
+    '005': {
               'name': 'loc4',
               'anchorX': 0,
               'anchorY': 0,
@@ -100,7 +100,7 @@ var locMap = {
                           },
               'blackMove': 'loc0',
             },
-    'loc5': {
+    '006': {
               'name': 'loc5',
               'anchorX': 0,
               'anchorY': 0,
@@ -117,7 +117,7 @@ var locMap = {
                           },
               'blackMove': 'loc4',
             },
-    'loc6': {
+    '007': {
               'name': 'loc6',
               'anchorX': 0,
               'anchorY': 0,
@@ -134,7 +134,7 @@ var locMap = {
                           },
               'blackMove': 'loc5',
             },
-    'loc7': {
+    '008': {
               'name': 'loc7',
               'anchorX': 0,
               'anchorY': 0,
@@ -150,7 +150,7 @@ var locMap = {
                           },
               'blackMove': 'loc6',
             },
-    'loc8': {
+    '009': {
               'name': 'loc8',
               'anchorX': 0,
               'anchorY': 0,
@@ -166,7 +166,7 @@ var locMap = {
                           },
               'blackMove': 'loc4',
             },
-    'loc9': {
+    '010': {
               'name': 'loc9',
               'anchorX': 0,
               'anchorY': 0,
@@ -183,7 +183,7 @@ var locMap = {
                           },
               'blackMove': 'loc8',
             },
-    'loc10': {
+    '011': {
               'name': 'loc10',
               'anchorX': 0,
               'anchorY': 0,
@@ -200,7 +200,7 @@ var locMap = {
                           },
               'blackMove': 'loc11',
             },
-    'loc11': {
+    '012': {
               'name': 'loc11',
               'anchorX': 0,
               'anchorY': 0,
@@ -216,7 +216,7 @@ var locMap = {
                           },
               'blackMove': 'loc7',
             },
-    'loc12': {
+    '013': {
               'name': 'loc12',
               'anchorX': 0,
               'anchorY': 0,
@@ -231,7 +231,7 @@ var locMap = {
                           },
               'blackMove': 'loc13',
             },
-    'loc13': {
+    '014': {
               'name': 'loc13',
               'anchorX': 0,
               'anchorY': 0,
@@ -247,7 +247,7 @@ var locMap = {
                           },
               'blackMove': 'loc14',
             },
-    'loc14': {
+    '015': {
               'name': 'loc14',
               'anchorX': 0,
               'anchorY': 0,
@@ -263,7 +263,7 @@ var locMap = {
                           },
               'blackMove': 'loc13',
             },
-    'loc15': {
+    '016': {
               'name': 'loc15',
               'anchorX': 0,
               'anchorY': 0,
