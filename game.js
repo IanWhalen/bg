@@ -113,13 +113,13 @@ bg.Game.prototype.charactorMovePhase = function() {
 bg.Game.prototype.charMovePressHandler_ = function(e) {
     if (this.isMoving_) return;
 
-    this.checkCombat(this.charactor, this.foeLayer);
-
     var clickPos = e.position;
     var clickLoc = this.getLoc(clickPos);
+    if (!clickLoc) return;
     var charLoc = this.charactor.loc;
 
     if (clickLoc.name in charLoc.adjacent) {
+        this.checkCombat(this.charactor, this.foeLayer);
         this.moveCharactor(this.charactor, clickLoc);
     }
 }

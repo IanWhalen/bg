@@ -1,6 +1,8 @@
 goog.provide('bg.EvadeOrFight');
 
 goog.require('lime.GlossyButton');
+goog.require('bg.evade_skillCheck');
+
 
 /**
  * Game scene for choice been evasion and fighting foes
@@ -11,8 +13,8 @@ goog.require('lime.GlossyButton');
 bg.EvadeOrFight = function(charactor, foe) {
     lime.Scene.call(this);
 
-    var layer = new lime.Layer();
-    this.appendChild(layer);
+    this.charactor = charactor;
+    this.foe = foe;
 
     this.choice = new lime.Sprite().setSize(800, 600).setFill('#CCC').setPosition(200, 200).setAnchorPoint(0, 0);
 
@@ -21,20 +23,42 @@ bg.EvadeOrFight = function(charactor, foe) {
     this.choice.appendChild(char_image);
     this.choice.appendChild(foe_image);
 
-    var btn_evade = new lime.GlossyButton('Evade!').setPosition(300, 500).setSize(100, 100);
-    var btn_fight = new lime.GlossyButton('Fight!').setPosition(500, 500).setSize(100, 100);
-    this.choice.appendChild(btn_evade);
-    this.choice.appendChild(btn_fight);
-
-    goog.events.listen(btn_evade, 'click', function() {
-            // TODO: run away!
-    });
-    goog.events.listen(btn_fight, 'click', function() {
-           // TODO: combat! 
-    });
+    this.btn_evade = new lime.GlossyButton('Evade!').setPosition(300, 500).setSize(100, 100);
+    this.btn_fight = new lime.GlossyButton('Fight!').setPosition(500, 500).setSize(100, 100);
+    this.choice.appendChild(this.btn_evade);
+    this.choice.appendChild(this.btn_fight);
 
     if (bg.isBrokenChrome()) this.choice.setRenderer(lime.renderer.CANVAS);
-    layer.appendChild(this.choice);
+    this.appendChild(this.choice);
+    
+    goog.events.listen(this.btn_evade, 'click', function() {
+        this.scene_.evade();
+    });
+    goog.events.listen(this.btn_fight, 'click', function() {
+        // TODO: combat! 
+    });
 
 }
 goog.inherits(bg.EvadeOrFight, lime.Scene);
+
+
+bg.EvadeOrFight.prototype.evade = function() {
+    this.choice.removeChild(this.btn_fight);
+    this.choice.removeChild(this.btn_evade);
+    var d = this.charactor.sneak + this.foe.awareness;
+    var instruct = new lime.Label('Click squares to roll die:').setPosition(400, 400);
+    this.choice.appendChild(instruct);
+    for (i=0; i < d; i++) {
+        var btn_die = new lime.GlossyButton('?').setPosition(200 + i * 100, 500).setSize(50, 50);
+        this.choice.appendChild(btn_die);
+        goog.events.listen(btn_die, 'click', function() {
+            this.rollDie(btn_die);
+        })
+    }
+};
+
+
+bg.EvadeOrFight.prototype.rollDie = function(btn_die) {
+    rollResult = Math.floor(Math.random() * 6 + 1);
+    btn_die.setText(rollResult);
+};

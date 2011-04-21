@@ -2,6 +2,7 @@ goog.provide('bg.Sideboard');
 
 goog.require('lime.Node');
 goog.require('lime.Layer');
+goog.require('bg.Foe');
 
 /**
  * Sideboard object.  Contains card decks and discards
@@ -38,7 +39,8 @@ bg.Sideboard = function(game) {
     this.appendChild(this.foeCup);
     for (var key in foeCupData) {
         var foeData = foeCupData[key];
-        this.addFoe(foeData);
+        var foe = new bg.Foe(foeData) ;       
+        this.foeCup.appendChild(foe);
     }
 
     // Shuffle discard pile back into deck if any deck is empty
@@ -47,12 +49,14 @@ bg.Sideboard = function(game) {
 };
 goog.inherits(bg.Sideboard, lime.Layer);
 
+
 bg.Sideboard.prototype.deckShuffler = function() {
     if (this.mythosDeck.children_.length < 1) {
         this.mythosDeck.children_ = this.mythosDeck.children_.concat(this.shuffle(this.mythosDiscard.children_));
         this.mythosDiscard.children_.length = 0;
     }
 };
+
 
 bg.Sideboard.prototype.shuffle = function(array) {
     var tmp, current, top = array.length;
@@ -67,6 +71,7 @@ bg.Sideboard.prototype.shuffle = function(array) {
     return array;
 };
 
+
 bg.Sideboard.prototype.spawnFoe = function(loc) {
     if (this.foeCup.children_.length == 0) return;
 
@@ -78,18 +83,13 @@ bg.Sideboard.prototype.spawnFoe = function(loc) {
     this.game.board.foeLayer.appendChild(foe);
 }
 
-bg.Sideboard.prototype.addFoe = function(foeData) {
-    this.foe = new bg.Foe(foeData);
-    this.foe.name = foeData['name'];
-    this.foe.moveShape = foeData['moveShape'];
-    this.foeCup.appendChild(this.foe);
-}
 
 bg.Sideboard.prototype.addGate = function(gateData) {
     this.gate = new lime.Node();
     this.gate.name = gateData['name'];
     this.gateStack.appendChild(this.gate);
 };
+
 
 bg.Sideboard.prototype.addMythosCard = function(cardData) {
     this.card = new lime.Node();
@@ -100,6 +100,7 @@ bg.Sideboard.prototype.addMythosCard = function(cardData) {
     this.mythosDiscard.appendChild(this.card);
 };
 
+
 var gateStackData = {
     '01': {
             'name': '1st Level',
@@ -108,6 +109,7 @@ var gateStackData = {
             'name': '2nd Level',
           },
 }
+
 
 var mythosDeckData = {
     '001': {

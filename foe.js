@@ -14,9 +14,14 @@ bg.Foe = function(foeData) {
     this.appendChild(this.circle);
     this.circle.setFill(foeData['imageAsset']);
 
+    this.name = foeData['name'];
+    this.moveShape = foeData['moveShape'];
+    this.awareness = foeData['awareness'];
+
     this.qualityRenderer = true;
 };
 goog.inherits(bg.Foe, lime.Sprite);
+
 
 /**
  * @inheritDoc

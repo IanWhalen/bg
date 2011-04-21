@@ -28,8 +28,14 @@ bg.Charactor = function(board, charName) {
 
     // Gameplay data
     this.speed = charactorData.speed;
+    this.sneak = charactorData.sneak;
+    this.fight = charactorData.fight;
+    this.will = charactorData.will;
+    this.lore = charactorData.lore;
+    this.luck = charactorData.luck;
+    this.sanity = charactorData.sanity;
     this.health = charactorData.health;
-    this.clueCount = undefined;
+    this.clueCount = 0;
 
     this.qualityRenderer = true;
 };
@@ -48,9 +54,15 @@ bg.Charactor.prototype.update = function() {
 
 var charactors = {
     'char1': {
-              'startLoc': 'Graveyard',
+              'startLoc': 'Ye Olde Magick Shoppe',
               'imageAsset': 'assets/ball_0.png',
-              'speed': 5,
+              'speed': 4,
+              'sneak': 4,
+              'fight': 2,
+              'will': 2,
+              'lore': 3,
+              'luck': 2,
+              'sanity': 5,
               'health': 5,
              },
 }

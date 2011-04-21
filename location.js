@@ -561,7 +561,7 @@ var locMap = {
               'whiteMove': 'Southside',
             },
     '032': {
-              'name': 'Ye Old Magick Shoppe',
+              'name': 'Ye Olde Magick Shoppe',
               'clueCount': 0,
               'anchorX': 0,
               'anchorY': 0,
