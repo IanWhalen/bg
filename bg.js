@@ -7,13 +7,15 @@ goog.require('lime.GlossyButton');
 goog.require('lime.Scene');
 goog.require('lime.Layer');
 goog.require('lime.transitions.Dissolve');
+goog.require('lime.transitions.SlideInDown');
 goog.require('lime.animation.MoveBy');
 goog.require('bg.Board');
 goog.require('bg.Game');
+goog.require('bg.EvadeOrFight');
 
 // set constant size
-bg.WIDTH = 720;
-bg.HEIGHT = 1004;
+bg.WIDTH = 1200;
+bg.HEIGHT = 1170;
 
 // entrypoint
 bg.start = function() {
@@ -38,12 +40,13 @@ bg.charactorSelect = function() {
       var lbl = new lime.Label().setText('Choose a Character to Play:').
         setFontColor('#FFFFFF').
         setFontSize(24).
-        setPosition(0, 140);
-      var charSelect1 = bg.makeCharSelectButton('Charactor 1').setPosition(0, 200);
+        setPosition(0, 50);
+      var charSelect1 = bg.makeCharSelectBtn('Charactor 1').setPosition(0, 200);
       goog.events.listen(charSelect1, 'click', function() {
           bg.newgame('char1')
       });
       charSelectBtns.appendChild(charSelect1);
+      charSelectBtns.appendChild(lbl);
 
       scene.appendChild(layer);
 
@@ -51,7 +54,7 @@ bg.charactorSelect = function() {
 };
 
 // helper for char select buttons
-bg.makeCharSelectButton = function(text) {
+bg.makeCharSelectBtn = function(text) {
     var btn = new lime.GlossyButton(text).setSize(180, 180);
     return btn;
 };

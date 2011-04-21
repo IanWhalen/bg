@@ -19,19 +19,14 @@ bg.Board = function(game, charName) {
 
     this.game = game;
 
-    /**
-     * @const
-     * @type {number}
-     */
-    this.SIZE = 1080;
-
+    this.SIZE = 1170;
     this.setSize(this.SIZE, this.SIZE).setAnchorPoint(0, 0);
 
     // space that one bubble takes up
-    this.GAP = 180;
+    this.GAP = 90;
 
     // create layer to contain Locations
-    this.map = new lime.Layer().setSize(690, 690).setAnchorPoint(0, 0).setPosition(0, 0);
+    this.map = new lime.Layer().setSize(360, 1080).setAnchorPoint(0, 0).setPosition(0, 0);
     this.appendChild(this.map);
     for (var key in locMap) {
         var loc = new bg.Location(locMap[key]);
@@ -48,9 +43,6 @@ bg.Board = function(game, charName) {
     this.foeLayer = new lime.Layer();
     this.appendChild(this.foeLayer);
 
-    // register listener
-    goog.events.listen(this, ['mousedown', 'touchstart'], this.pressHandler_);
-
 };
 goog.inherits(bg.Board, lime.Sprite);
 
@@ -61,55 +53,11 @@ bg.Board.prototype.getLocFromName = function(name) {
     };
 };
 
-/**
- * Add a new foe sprite to the board
- * @param {bg.Location} loc
- */ 
-bg.Board.prototype.addFoe = function(loc) {
-    this.foe = new bg.Foe();
-    this.foe.loc = loc;
-    this.foe.moveShape = 'cross';
-    this.foe.setPosition(loc.position_.x + (loc.size_.width / 2), loc.position_.y + (loc.size_.height / 2));
-    this.foe.setSize(this.GAP, this.GAP);
-    this.foeLayer.appendChild(this.foe);
-};
-
-/**
- * Add a new charactor sprite to the board
- * @param {text} charName Name of charactor.
- */
-bg.Board.prototype.addCharactor = function(charName) {
-    this.charactor = new bg.Charactor(charName);
-    this.charLayer.appendChild(this.charactor);
-};
-
-/**
- * Handle presses on the board
- * @param {lime.Event} e Event.
- */
-bg.Board.prototype.pressHandler_ = function(e) {
-    // no touching allowed when still moving
-    if (this.isMoving_) return;
-
-    var clickPos = e.position;
-
-    // get location name for the touch event
-    var clickLoc = this.getLoc(clickPos);
-    var charLoc = this.charactor.loc
-
-    if (bg.Game.turnPhase = 'PLAYER_MOVE') {
-      if (clickLoc.name in charLoc.adjacent) {
-          // if selected loc are adjacent then move
-          this.moveCharactor(this.charactor, clickLoc);
-      }
-    }
-};
-
 bg.Board.prototype.checkCombat = function(charactor, foeLayer) {
     for (var each in foeLayer.children_) {
         var foe = foeLayer.children_[each];
         if (charactor.loc.name == foe.loc.name) {
-            charactor.health -= 1;
+            this.game.evadeOrFight(charactor, foe);
         }
     }
 };
@@ -137,11 +85,12 @@ bg.Board.prototype.moveCharactor = function(charactor, clickLoc) {
     charactor.runAction(move);
     goog.events.listen(move, lime.animation.Event.STOP, function() {
         this.isMoving_ = 0;
-        this.checkCombat(this.charactor, this.foeLayer);
         charactor.moveCount -= 1;
-        if (charactor.moveCount == 0) {
-            this.game.turnPhase = 'MYTHOS_PHASE';
+        if (charactor.moveCount <= 0) {
+            goog.events.unlisten(this, ['mousedown', 'touchstart'], this.game.charMovePressHandler_);
+            this.game.takeClues(charactor, charactor.loc);
+            this.game.drawMythosCard();
         };
-        },
-        false, this);
+    },
+    false, this);
 };

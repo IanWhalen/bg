@@ -27,8 +27,9 @@ bg.Charactor = function(board, charName) {
     this.setSize(this.board.GAP, this.board.GAP);
 
     // Gameplay data
-    this.moveCount = charactorData.speed;
+    this.speed = charactorData.speed;
     this.health = charactorData.health;
+    this.clueCount = undefined;
 
     this.qualityRenderer = true;
 };
@@ -47,9 +48,9 @@ bg.Charactor.prototype.update = function() {
 
 var charactors = {
     'char1': {
-              'startLoc': 'loc0',
+              'startLoc': 'Graveyard',
               'imageAsset': 'assets/ball_0.png',
-              'speed': 1,
+              'speed': 5,
               'health': 5,
              },
 }

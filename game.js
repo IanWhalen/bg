@@ -10,14 +10,12 @@ goog.require('bg.Sideboard');
 bg.Game = function(charName) {
     lime.Scene.call(this);
 
-    this.turnPhase = 'PLAYER_MOVE';
-
     // empty layer for contents
     var layer = new lime.Layer();
     this.appendChild(layer);
 
     // make board
-    this.board = new bg.Board(this, charName).setPosition(0, 174);
+    this.board = new bg.Board(this, charName).setPosition(0, 0);
 
     // make sideboard
     this.sideboard = new bg.Sideboard(this);
@@ -25,19 +23,21 @@ bg.Game = function(charName) {
     if(bg.isBrokenChrome()) this.board.SetRenderer(lime.Renderer.CANVAS);
     layer.appendChild(this.board);
 
-    lime.scheduleManager.scheduleWithDelay(this.drawMythosCard, this, 100);
+    lime.scheduleManager.callAfter(this.drawMythosCard, this, 100);
 
 };
 goog.inherits(bg.Game, lime.Scene);
 
+
 // Draw mythos card and execute steps
 bg.Game.prototype.drawMythosCard = function() {
-    if (this.turnPhase == 'MYTHOS_PHASE') {
-        var mythosCard = this.sideboard.mythosDeck.children_.pop();
-        this.spawnGate(mythosCard);
-        this.moveFoes(mythosCard);
-    };
+    this.turnPhase == 'MYTHOS_PHASE';
+    var mythosCard = this.sideboard.mythosDeck.children_.pop();
+    this.spawnGate(mythosCard);
+    this.moveFoes(mythosCard);
+    this.charactorMovePhase();
 };
+
 
 bg.Game.prototype.spawnGate = function(mythosCard) {
     var targetLoc = this.board.getLocFromName(mythosCard.spawnLoc);
@@ -46,26 +46,30 @@ bg.Game.prototype.spawnGate = function(mythosCard) {
     } else {
         targetLoc.gate = this.sideboard.gateStack.children_.pop();
         targetLoc.setFill('#CCC');
-        this.board.addFoe(targetLoc);
+        this.sideboard.spawnFoe(targetLoc);
     };
 }
 
+
+// Foe Surge occurs if spawnGate happens on an existing gate
 bg.Game.prototype.foeSurge = function() {
     var locArray = this.board.map.children_;
     for (var each in locArray) {
         if (locArray[each].gate) {
-            this.board.addFoe(locArray[each]);
+            this.sideboard.spawnFoe(locArray[each]);
         }
     }
 };
 
+
 // Execute Move Foes step of Mythos phase
 bg.Game.prototype.moveFoes = function(mythosCard) {
-    foes_in_play = this.board.foeLayer.children_;
+    var foes_in_play = this.board.foeLayer.children_;
 
     for (var each in foes_in_play) {
-        this.board.isMoving_ = 1;
         var foe = foes_in_play[each];
+        if (foe.loc.name == this.board.charactor.loc.name) continue;
+        this.board.isMoving_ = 1;
 
         // Determine if foe should move along black or white path, if at all
         if (foe.moveShape in mythosCard.blackMove) {
@@ -91,6 +95,45 @@ bg.Game.prototype.moveFoes = function(mythosCard) {
             false, this);
     }
     this.sideboard.mythosDiscard.children_.push(mythosCard);
-    this.board.charactor.moveCount = 1;
+}
+
+
+bg.Game.prototype.charactorMovePhase = function() {
     this.turnPhase = 'PLAYER_MOVE';
+    this.board.charactor.moveCount = this.board.charactor.speed;
+
+    goog.events.listen(this.board, ['mousedown', 'touchstart'], this.charMovePressHandler_);
+}
+
+
+/**
+ * Handle key presses during player movement phase
+ * @param {lime.Event} e
+ */
+bg.Game.prototype.charMovePressHandler_ = function(e) {
+    if (this.isMoving_) return;
+
+    this.checkCombat(this.charactor, this.foeLayer);
+
+    var clickPos = e.position;
+    var clickLoc = this.getLoc(clickPos);
+    var charLoc = this.charactor.loc;
+
+    if (clickLoc.name in charLoc.adjacent) {
+        this.moveCharactor(this.charactor, clickLoc);
+    }
+}
+
+
+bg.Game.prototype.takeClues = function(charactor, loc) {
+    if (charactor.loc.clueCount) {
+        charactor.clueCount += charactor.loc.clueCount;
+        charactor.loc.clueCount = 0;
+    };
+}
+
+
+bg.Game.prototype.evadeOrFight = function(charactor, foe) {
+    var scene = new bg.EvadeOrFight(charactor, foe);
+    bg.director.replaceScene(scene, lime.transitions.SlideInUp);
 }
