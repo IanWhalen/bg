@@ -49,16 +49,12 @@ bg.EvadeOrFight.prototype.evade = function() {
     var instruct = new lime.Label('Click squares to roll die:').setPosition(400, 400);
     this.choice.appendChild(instruct);
     for (i=0; i < d; i++) {
-        var btn_die = new lime.GlossyButton('?').setPosition(200 + i * 100, 500).setSize(50, 50);
+        var btn_die = new lime.GlossyButton('?').setPosition(200 + i * 100, 500).setSize(50, 50).setColor('#FFF');
         this.choice.appendChild(btn_die);
-        goog.events.listen(btn_die, 'click', function() {
-            this.rollDie(btn_die);
+        goog.events.listenOnce(btn_die, 'click', function() {
+            rollResult = Math.floor(Math.random() * 6 + 1);
+            this.setText(rollResult);
+            (rollResult > 4 ? this.setColor('#008000') : this.setColor('#FF0000'));
         })
     }
-};
-
-
-bg.EvadeOrFight.prototype.rollDie = function(btn_die) {
-    rollResult = Math.floor(Math.random() * 6 + 1);
-    btn_die.setText(rollResult);
 };
