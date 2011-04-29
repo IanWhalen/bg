@@ -12,7 +12,6 @@ goog.require('lime.animation.MoveBy');
 goog.require('bg.Board');
 goog.require('bg.Game');
 goog.require('bg.EvadeOrFight');
-goog.require('bg.events');
 
 // set constant size
 bg.WIDTH = 1200;
