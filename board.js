@@ -57,9 +57,11 @@ bg.Board.prototype.checkCombat = function(charactor, foeLayer) {
     for (var each in foeLayer.children_) {
         var foe = foeLayer.children_[each];
         if (charactor.loc.name == foe.loc.name) {
+            var startCombat = true;
             this.game.evadeOrFight(charactor, foe);
         }
     }
+    if (!startCombat) this.dispatchEvent('char_move_safe');
 };
 
 /**

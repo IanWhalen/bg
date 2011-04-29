@@ -106,17 +106,20 @@ bg.Game.prototype.charactorMovePhase = function() {
 
 /**
  * Handle key presses during player movement phase
+ * Context must be a board object
  * @param {lime.Event} e
  */
 bg.Game.prototype.charMovePressHandler_ = function(e) {
+    var charLoc = this.charactor.loc;
     var clickLoc = this.getLoc(e.position);
     if (this.isMoving_ || !clickLoc) return;
 
-    var charLoc = this.charactor.loc;
-
     if (clickLoc.name in charLoc.adjacent) {
+        goog.events.listenOnce(this, 'char_move_safe', function() {
+            this.moveCharactor(this.charactor, clickLoc);
+        });
+        
         this.checkCombat(this.charactor, this.foeLayer);
-        this.moveCharactor(this.charactor, clickLoc);
     }
 }
 
