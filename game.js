@@ -109,11 +109,9 @@ bg.Game.prototype.charactorMovePhase = function() {
  * @param {lime.Event} e
  */
 bg.Game.prototype.charMovePressHandler_ = function(e) {
-    if (this.isMoving_) return;
+    var clickLoc = this.getLoc(e.position);
+    if (this.isMoving_ || !clickLoc) return;
 
-    var clickPos = e.position;
-    var clickLoc = this.getLoc(clickPos);
-    if (!clickLoc) return;
     var charLoc = this.charactor.loc;
 
     if (clickLoc.name in charLoc.adjacent) {
