@@ -23,8 +23,6 @@ bg.Game = function(charName) {
     if(bg.isBrokenChrome()) this.board.SetRenderer(lime.Renderer.CANVAS);
     layer.appendChild(this.board);
 
-    lime.scheduleManager.callAfter(this.drawMythosCard, this, 100);
-
 };
 goog.inherits(bg.Game, lime.Scene);
 
