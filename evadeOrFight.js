@@ -1,5 +1,6 @@
 goog.provide('bg.EvadeOrFight');
 
+goog.require('bg.HorrorCheck');
 goog.require('lime.GlossyButton');
 
 
@@ -37,7 +38,7 @@ bg.EvadeOrFight = function(charactor, foe) {
         this.scene_.evade();
     });
     goog.events.listen(this.btn_fight, 'click', function() {
-        // TODO: combat! 
+        var check = new bg.HorrorCheck(this.scene_); 
     });
 
 }
@@ -52,14 +53,14 @@ bg.EvadeOrFight.prototype.evade = function() {
     this.lowerPane.d = this.charactor.sneak + this.foe.awareness;
 
     // Create die objects and label
-    var instruct = new lime.Label('Click squares to roll die:').setPosition(400, 100);
+    var instruct = new lime.Label('Click squares to roll die for Evade Check:').setPosition(400, 100);
     this.lowerPane.appendChild(instruct);
     for (i=0; i < this.lowerPane.d; i++) {
         var btn_die = new lime.GlossyButton('?').setPosition(200 + i * 100, 200).setSize(50, 50).setColor('#FFF');
         this.lowerPane.appendChild(btn_die);
         goog.events.listenOnce(btn_die, 'click', function() {
-          this.scene_.rollDie(this)
-    });
+            this.scene_.rollDie(this);
+        });
     }
 
 };
@@ -88,12 +89,8 @@ bg.EvadeOrFight.prototype.rollDie = function(btn_die) {
                 bg.gameScene.board.dispatchEvent('char_move_safe');
             });
         } else {
-            this.fight();
+            var check = new bg.HorrorCheck(this.scene_); 
         }
     }
 
-}
-
-
-bg.EvadeOrFight.prototype.fight = function() {
 }

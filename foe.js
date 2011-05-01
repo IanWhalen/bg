@@ -17,6 +17,8 @@ bg.Foe = function(foeData) {
     this.name = foeData['name'];
     this.moveShape = foeData['moveShape'];
     this.awareness = foeData['awareness'];
+    this.horrorRating = foeData['horrorRating'];
+    this.horrorDamage = foeData['horrorDamage'];
 
     this.qualityRenderer = true;
 };
