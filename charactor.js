@@ -27,15 +27,12 @@ bg.Charactor = function(board, charName) {
     this.setSize(this.board.GAP, this.board.GAP);
 
     // Gameplay data
-    this.speed = charactorData.speed;
-    this.sneak = charactorData.sneak;
-    this.fight = charactorData.fight;
-    this.will = charactorData.will;
-    this.lore = charactorData.lore;
-    this.luck = charactorData.luck;
-    this.sanity = charactorData.sanity;
-    this.health = charactorData.health;
+    for (var each in charactorData.stats) {
+        this[each] = charactorData.stats[each];
+    }
+
     this.clueCount = 0;
+    this.trophyStack = [];
 
     this.qualityRenderer = true;
 };
@@ -56,13 +53,15 @@ var charactors = {
     'char1': {
               'startLoc': 'Ye Olde Magick Shoppe',
               'imageAsset': 'assets/ball_0.png',
-              'speed': 4,
-              'sneak': 4,
-              'fight': 2,
-              'will': 2,
-              'lore': 3,
-              'luck': 2,
-              'sanity': 5,
-              'health': 5,
+              'stats': {
+                        'speed': 4,
+                        'sneak': 4,
+                        'fight': 2,
+                        'will': 2,
+                        'lore': 3,
+                        'luck': 2,
+                        'sanity': 5,
+                        'health': 5,
+                       },
              },
 }
