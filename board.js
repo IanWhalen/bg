@@ -2,6 +2,7 @@ goog.provide('bg.Board');
 
 goog.require('goog.events');
 goog.require('lime.Sprite');
+goog.require('lime.Button');
 goog.require('lime.animation.MoveTo');
 goog.require('bg.Charactor');
 goog.require('bg.Foe');
@@ -43,8 +44,55 @@ bg.Board = function(game, charName) {
     this.foeLayer = new lime.Layer();
     this.appendChild(this.foeLayer);
 
+    // Create buttons
+    this.endCharMoveBtn = new lime.GlossyButton('End Move Phase Here').setSize(200, 100).setPosition(500, 100).setOpacity(0);
+    this.appendChild(this.endCharMoveBtn);
+    
 };
 goog.inherits(bg.Board, lime.Sprite);
+
+
+bg.Board.prototype.showEndMoveBtn = function() {
+    // Get ready to notify board when button is displayed
+    var show = new lime.animation.FadeTo(1);
+    goog.events.listenOnce(show, lime.animation.Event.STOP, function() {
+        this.dispatchEvent('btn_shown');
+    }, false, this)
+    
+    // Start listening for button clicks
+    goog.events.listenOnce(this.endCharMoveBtn, 'click', function() {
+        this.endCharMove();
+    }, false, this);
+
+    // Display the button
+    this.endCharMoveBtn.runAction(show);
+
+}
+
+
+bg.Board.prototype.hideEndMoveBtn = function() {
+    var hide = new lime.animation.FadeTo(0);
+    goog.events.listenOnce(hide, lime.animation.Event.STOP, function() {
+        this.dispatchEvent('btn_hidden');
+    }, false, this)
+
+    this.endCharMoveBtn.runAction(hide);
+
+}
+
+
+bg.Board.prototype.endCharMove = function() {
+    goog.events.listenOnce(this, 'btn_hidden', function() {
+        this.charactor.moveCount = 0;
+        this.game.takeClues(this.charactor, this.charactor.loc);
+        this.game.drawMythosCard();
+    });
+    goog.events.unlisten(this, ['mousedown', 'touchstart'], this.game.charMovePressHandler_);
+    
+    this.hideEndMoveBtn();
+
+}
+
 
 bg.Board.prototype.getLocFromName = function(name) {
     locArray = this.map.children_;
@@ -79,20 +127,23 @@ bg.Board.prototype.getLoc = function(pos) {
     };
 };
 
+
+/**
+ * Move given charactor to specified location
+ * @param {bg.Charactor} charactor
+ * @param {bg.Location} clickLoc
+ */
 bg.Board.prototype.moveCharactor = function(charactor, clickLoc) {
     this.isMoving_ = 1;
     var move = new lime.animation.MoveTo(clickLoc.position_.x + (clickLoc.size_.width / 2),
         clickLoc.position_.y + (clickLoc.size_.height / 2));
     charactor.loc = clickLoc;
-    charactor.runAction(move);
     goog.events.listen(move, lime.animation.Event.STOP, function() {
         this.isMoving_ = 0;
         charactor.moveCount -= 1;
-        if (charactor.moveCount <= 0) {
-            goog.events.unlisten(this, ['mousedown', 'touchstart'], this.game.charMovePressHandler_);
-            this.game.takeClues(charactor, charactor.loc);
-            this.game.drawMythosCard();
-        };
-    },
-    false, this);
-};
+        if (charactor.moveCount <= 0) this.endCharMove();
+    }, false, this);
+    
+    charactor.runAction(move);
+
+}

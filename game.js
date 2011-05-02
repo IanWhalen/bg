@@ -30,10 +30,17 @@ goog.inherits(bg.Game, lime.Scene);
 // Draw mythos card and execute steps
 bg.Game.prototype.drawMythosCard = function() {
     this.turnPhase == 'MYTHOS_PHASE';
+
+    goog.events.listenOnce(this, 'gate_spawn_complete', function() {
+        this.moveFoes(mythosCard); // runs on completion of spawnGate()
+    }, false, this);
+    goog.events.listenOnce(this, 'move_foes_complete', function() {
+        this.charactorMovePhase(); // runs on completion of moveFoes()
+    }, false, this);
+    
     var mythosCard = this.sideboard.mythosDeck.children_.pop();
     this.spawnGate(mythosCard);
-    this.moveFoes(mythosCard);
-    this.charactorMovePhase();
+    
 };
 
 
@@ -46,6 +53,8 @@ bg.Game.prototype.spawnGate = function(mythosCard) {
         targetLoc.setFill('#CCC');
         this.sideboard.spawnFoe(targetLoc);
     };
+
+    this.dispatchEvent('gate_spawn_complete');
 }
 
 
@@ -87,18 +96,20 @@ bg.Game.prototype.moveFoes = function(mythosCard) {
         foe.loc = targetLoc;
         foe.runAction(move);
         goog.events.listen(move, lime.animation.Event.STOP, function() {
-        this.board.checkCombat(this.board.charactor, this.board.foeLayer);
-        this.board.isMoving_ = 0;
-        },
-            false, this);
+            this.board.checkCombat(this.board.charactor, this.board.foeLayer);
+            this.board.isMoving_ = 0;
+        }, false, this);
     }
     this.sideboard.mythosDiscard.children_.push(mythosCard);
+    this.dispatchEvent('move_foes_complete');
 }
 
 
 bg.Game.prototype.charactorMovePhase = function() {
     this.turnPhase = 'PLAYER_MOVE';
     this.board.charactor.moveCount = this.board.charactor.speed;
+
+    this.board.showEndMoveBtn();
 
     goog.events.listen(this.board, ['mousedown', 'touchstart'], this.charMovePressHandler_);
 }
